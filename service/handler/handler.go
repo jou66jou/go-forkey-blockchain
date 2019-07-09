@@ -9,7 +9,7 @@ import (
 )
 
 type Message struct {
-	BPM int
+	Wallet int
 }
 
 func GetBlockchain(w http.ResponseWriter, r *http.Request) {
@@ -30,7 +30,7 @@ func WriteBlock(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	defer r.Body.Close()
-	newBlock, err := Blockchain[len(Blockchain)-1].GenerateBlock(m.BPM)
+	newBlock, err := Blockchain[len(Blockchain)-1].GenerateBlock(m.Wallet)
 	if err != nil {
 		respondWithJSON(w, r, http.StatusInternalServerError, m)
 		return

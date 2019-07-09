@@ -11,8 +11,7 @@ type Block struct {
 	Timestamp string
 	Hash      string
 	PrevHash  string
-	BPM       int //記錄心跳數
-
+	Wallet    int
 }
 
 var (
@@ -20,12 +19,12 @@ var (
 )
 
 // 建立新block
-func (block *Block) GenerateBlock(BPM int) (Block, error) {
+func (block *Block) GenerateBlock(Wallet int) (Block, error) {
 	var newBlock Block
 	t := time.Now()
 	newBlock.Index = block.Index + 1
 	newBlock.Timestamp = t.String()
-	newBlock.BPM = BPM
+	newBlock.Wallet = Wallet
 	newBlock.PrevHash = block.Hash
 	newBlock.Hash = newBlock.CalculateHash()
 	return newBlock, nil
@@ -33,7 +32,7 @@ func (block *Block) GenerateBlock(BPM int) (Block, error) {
 
 // 產生一個block的SHA256
 func (block *Block) CalculateHash() string {
-	record := string(block.Index) + block.Timestamp + string(block.BPM) + block.PrevHash
+	record := string(block.Index) + block.Timestamp + string(block.Wallet) + block.PrevHash
 	h := sha256.New()
 	h.Write([]byte(record))
 	hashed := h.Sum(nil)
