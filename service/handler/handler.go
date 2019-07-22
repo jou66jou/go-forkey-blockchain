@@ -82,7 +82,6 @@ func WriteBlock(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	defer r.Body.Close()
-
 	lastBlock := block.GetLatestBlock()
 	newBlock, err := lastBlock.GenerateBlock(m.Wallet)
 	if err != nil {

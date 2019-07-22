@@ -7,7 +7,7 @@ import (
 
 	"github.com/gorilla/websocket"
 	"github.com/jou66jou/go-forky-blockchain/block"
-	"github.com/jou66jou/go-p2p-websocket/common"
+	"github.com/jou66jou/go-forky-blockchain/common"
 )
 
 // 節點通信格式

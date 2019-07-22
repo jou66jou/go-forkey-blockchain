@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"fmt"
 
+	"github.com/goinggo/mapstructure"
+
 	"github.com/gorilla/websocket"
 	"github.com/jou66jou/go-forky-blockchain/block"
 )
@@ -42,7 +44,12 @@ func (p *Peer) Read() {
 		case ADD_PEER:
 			ConnectionToAddr(m.Content.(string), true)
 		case RESPONSE_BLOCKCHAIN:
-			block.ReplaceChain(m.Content.([]block.Block))
+			var newBCs []block.Block
+			if err := mapstructure.Decode(m.Content, &newBCs); err != nil { // map to slice
+				fmt.Println("mapstructure err : ", err)
+				continue
+			}
+			block.ReplaceChain(newBCs)
 		}
 	}
 }
