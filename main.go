@@ -1,19 +1,32 @@
 package main
 
 import (
+	"flag"
+	"fmt"
 	"log"
-	"time"
 
-	"github.com/jou66jou/go-forky-blockchain/block"
+	"github.com/jou66jou/go-forky-blockchain/p2p"
 	"github.com/jou66jou/go-forky-blockchain/service"
 )
 
+var (
+	port string
+	seed string
+)
+
 func main() {
-	go func() {
-		t := time.Now()
-		genesisBlock := block.Block{0, t.String(), "", "", 0}
-		// spew.Dump(genesisBlock)
-		block.BCs = append(block.BCs, genesisBlock)
-	}()
-	log.Fatal(service.RunHTTP())
+	initFlag()
+	fmt.Println(port)
+	p2p.MyPort = port
+	if ("127.0.0.1:" + port) != seed {
+		p2p.ConnectionToAddr(seed, false)
+
+	}
+	log.Fatal(service.RunHTTP(port))
+}
+
+func initFlag() {
+	flag.StringVar(&port, "p", "8080", "listen port")               // 8080
+	flag.StringVar(&seed, "seed", "127.0.0.1:8080", "seed ip:port") // 127.0.0.1:8080
+	flag.Parse()
 }

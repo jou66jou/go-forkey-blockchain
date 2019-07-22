@@ -6,12 +6,12 @@ import (
 	"time"
 
 	"github.com/gorilla/mux"
+	"github.com/jou66jou/go-forky-blockchain/common"
 	"github.com/jou66jou/go-forky-blockchain/service/handler"
 )
 
-func RunHTTP() error {
+func RunHTTP(httpAddr string) error {
 	mux := makeMuxRouter()
-	httpAddr := "8080"
 	log.Println("Listening on ", httpAddr)
 	s := &http.Server{
 		Addr:           ":" + httpAddr,
@@ -27,8 +27,16 @@ func RunHTTP() error {
 }
 
 func makeMuxRouter() http.Handler {
+	rName := common.RouteName
 	muxRouter := mux.NewRouter()
-	muxRouter.HandleFunc("/", handler.GetBlockchain).Methods("GET")
-	muxRouter.HandleFunc("/", handler.WriteBlock).Methods("POST")
+	// 列出所有區塊
+	muxRouter.HandleFunc("/blocks", handler.GetBlockchain).Methods("GET")
+	// 列出所有節點
+	muxRouter.HandleFunc(rName["getAllPeers"], handler.GetPeers).Methods("GET")
+	// 寫入新區塊
+	muxRouter.HandleFunc("/newblock", handler.WriteBlock).Methods("POST")
+	// 建立新websocket連線
+	muxRouter.HandleFunc(rName["newWS"], handler.NewWS)
+
 	return muxRouter
 }

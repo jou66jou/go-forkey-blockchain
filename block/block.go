@@ -41,10 +41,10 @@ func (block *Block) CalculateHash() string {
 
 // 驗證block
 func (block *Block) IsBlockValid() bool {
-	if BCs[len(BCs)-1].Index+1 != block.Index {
+	if GetLatestBlock().Index+1 != block.Index {
 		return false
 	}
-	if BCs[len(BCs)-1].Hash != block.PrevHash {
+	if GetLatestBlock().Hash != block.PrevHash {
 		return false
 	}
 	if block.CalculateHash() != block.Hash {
@@ -58,4 +58,15 @@ func ReplaceChain(newBlocks []Block) {
 	if len(newBlocks) > len(BCs) {
 		BCs = newBlocks
 	}
+}
+
+//取得最後一塊block
+func GetLatestBlock() Block {
+	if len(BCs) == 0 { //若鏈上無區塊則產生初始block
+		t := time.Now()
+		genesisBlock := Block{0, t.String(), "", "", 0}
+		genesisBlock.Hash = genesisBlock.CalculateHash()
+		BCs = append(BCs, genesisBlock)
+	}
+	return BCs[len(BCs)-1]
 }
