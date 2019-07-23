@@ -48,9 +48,9 @@ func (p *Peer) Read() {
 				continue
 			}
 			ConnectionToAddr(addr, true) // 對新節點發起連線
-		case common.QUERY_ALL:
+		case common.QUERY_ALL: // 收到請求鏈
 			RespBLOCKCHAIN(p)
-		case common.RESPONSE_BLOCKCHAIN:
+		case common.RESPONSE_BLOCKCHAIN: // 新區塊鏈事件
 			var newBCs []block.Block
 			if err := mapstructure.Decode(m.Content, &newBCs); err != nil { // map to slice
 				fmt.Println("mapstructure err : ", err)
