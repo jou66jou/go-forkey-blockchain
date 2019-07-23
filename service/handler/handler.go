@@ -36,20 +36,21 @@ func NewWS(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
+	// p2p
+	newPeer := p2p.AppendNewPeer(conn, taget)
+	go newPeer.Write()
+	go newPeer.Read()
+
 	// req帶有brdcst key則不進行廣播，brdcst代表req端是接收到廣播而發起websocket，避免廣播風暴
 	v, ok := q["brdcst"]
 	if !ok {
 		if len(v) == 0 {
 			// 廣播新結點
 			p2p.BroadcastAddr(taget)
+			// 向新節點傳入當前鏈
+			p2p.RespBLOCKCHAIN(newPeer)
 		}
 	}
-
-	// p2p
-	newPeer := p2p.AppendNewPeer(conn, taget)
-	go newPeer.Write()
-	go newPeer.Read()
-	p2p.RespBLOCKCHAIN(&newPeer)
 }
 
 func GetPeers(w http.ResponseWriter, r *http.Request) {
