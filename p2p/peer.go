@@ -8,6 +8,7 @@ import (
 
 	"github.com/gorilla/websocket"
 	"github.com/jou66jou/go-forky-blockchain/block"
+	"github.com/jou66jou/go-forky-blockchain/common"
 )
 
 // 節點
@@ -41,15 +42,25 @@ func (p *Peer) Read() {
 			continue
 		}
 		switch m.Event {
-		case ADD_PEER:
-			ConnectionToAddr(m.Content.(string), true)
-		case RESPONSE_BLOCKCHAIN:
+		case common.ADD_PEER: // 接收到廣播的新節點
+			addr := m.Content.(string)
+			if addr == "127.0.0.1:"+MyPort { // 節點為自己則略過
+				continue
+			}
+			ConnectionToAddr(addr, true) // 對新節點發起連線
+		case common.QUERY_ALL:
+			RespBLOCKCHAIN(p)
+		case common.RESPONSE_BLOCKCHAIN:
 			var newBCs []block.Block
 			if err := mapstructure.Decode(m.Content, &newBCs); err != nil { // map to slice
 				fmt.Println("mapstructure err : ", err)
 				continue
 			}
-			block.ReplaceChain(newBCs)
+			event, content := block.ReplaceChain(newBCs)
+			if event > -1 { // 廣播新事件
+				replaceChainMsg := msg{event, content}
+				broadcastAll(replaceChainMsg)
+			}
 		}
 	}
 }
