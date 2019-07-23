@@ -5,7 +5,6 @@ import (
 	"fmt"
 
 	"github.com/goinggo/mapstructure"
-
 	"github.com/gorilla/websocket"
 	"github.com/jou66jou/go-forky-blockchain/block"
 	"github.com/jou66jou/go-forky-blockchain/common"
@@ -42,24 +41,26 @@ func (p *Peer) Read() {
 			continue
 		}
 		switch m.Event {
+
 		case common.ADD_PEER: // 接收到廣播的新節點
 			addr := m.Content.(string)
 			if addr == "127.0.0.1:"+MyPort { // 節點為自己則略過
 				continue
 			}
-			ConnectionToAddr(addr, true) // 對新節點發起連線
+			go ConnectionToAddr(addr, true) // 對新節點發起連線
+
 		case common.QUERY_ALL: // 收到請求鏈
-			RespBLOCKCHAIN(p)
+			go RespBLOCKCHAIN(p)
+
 		case common.RESPONSE_BLOCKCHAIN: // 新區塊鏈事件
 			var newBCs []block.Block
 			if err := mapstructure.Decode(m.Content, &newBCs); err != nil { // map to slice
 				fmt.Println("mapstructure err : ", err)
-				continue
+				return
 			}
-			event, content := block.ReplaceChain(newBCs)
-			if event > -1 { // 廣播新事件
-				replaceChainMsg := msg{event, content}
-				broadcastAll(replaceChainMsg)
+			event, content := block.BlockChainValid(newBCs)
+			if event > -1 {
+				go BroadcastChain(event, content)
 			}
 		}
 	}

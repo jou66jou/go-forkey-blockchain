@@ -56,8 +56,8 @@ func (block *Block) IsBlockValid() bool {
 	return true
 }
 
-// 替換舊鏈
-func ReplaceChain(newBlocks []Block) (event int, content interface{}) {
+// 驗證鏈
+func BlockChainValid(newBlocks []Block) (event int, content interface{}) {
 	if len(newBlocks) == 0 {
 		fmt.Println("new blockchain len is 0")
 		return -1, ""
@@ -69,11 +69,14 @@ func ReplaceChain(newBlocks []Block) (event int, content interface{}) {
 		if lastNewBlock.IsBlockValid() {
 			BCs = append(BCs, lastNewBlock)
 			// 廣播新區塊
-			return common.RESPONSE_BLOCKCHAIN, lastNewBlock
+			fmt.Println("broadcast new block to other peer")
+			return common.RESPONSE_BLOCKCHAIN, []Block{lastNewBlock}
 		} else if len(newBlocks) == 1 {
 			// 請求其他節點的鏈
+			fmt.Println("query chain form other peer")
 			return common.QUERY_ALL, ""
 		} else {
+			fmt.Println("replace now chain")
 			BCs = newBlocks
 			return -1, ""
 		}

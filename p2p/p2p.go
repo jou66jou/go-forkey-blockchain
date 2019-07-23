@@ -66,6 +66,13 @@ func RespBLOCKCHAIN(p *Peer) {
 	p.send <- b
 }
 
+// 發出鏈更新事件
+func BroadcastChain(event int, content interface{}) {
+	fmt.Println("send num:", event, " event to broadcastAll : ", content)
+	replaceChainMsg := msg{event, content}
+	broadcastAll(replaceChainMsg)
+}
+
 // 發出新節點事件
 func BroadcastAddr(tgt string) {
 	m := msg{common.ADD_PEER, tgt}

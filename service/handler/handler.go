@@ -7,6 +7,8 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/jou66jou/go-forky-blockchain/common"
+
 	"github.com/gorilla/websocket"
 	"github.com/jou66jou/go-forky-blockchain/block"
 	"github.com/jou66jou/go-forky-blockchain/p2p"
@@ -28,7 +30,6 @@ func NewWS(res http.ResponseWriter, req *http.Request) {
 	ip := strings.Split(req.RemoteAddr, ":")
 	// 取得請求端ip:port
 	taget := ip[0] + ":" + rPort[0]
-
 	conn, err := (&websocket.Upgrader{CheckOrigin: func(r *http.Request) bool { return true }}).Upgrade(res, req, nil)
 	if err != nil {
 		fmt.Println("new client error: " + err.Error())
@@ -48,7 +49,7 @@ func NewWS(res http.ResponseWriter, req *http.Request) {
 			// 廣播新結點
 			p2p.BroadcastAddr(taget)
 			// 向新節點傳入當前鏈
-			p2p.RespBLOCKCHAIN(newPeer)
+			p2p.RespBLOCKCHAIN(&newPeer)
 		}
 	}
 }
@@ -90,11 +91,9 @@ func WriteBlock(w http.ResponseWriter, r *http.Request) {
 		respondWithJSON(w, r, http.StatusInternalServerError, m)
 		return
 	}
-	Blockchain := block.BCs
 	if newBlock.IsBlockValid() {
-		newBlockchain := append(Blockchain, newBlock)
-		block.ReplaceChain(newBlockchain)
-		// spew.Dump(Blockchain)
+		block.BCs = append(block.BCs, newBlock)
+		p2p.BroadcastChain(common.RESPONSE_BLOCKCHAIN, []block.Block{newBlock})
 	}
 	respondWithJSON(w, r, http.StatusCreated, newBlock)
 }
