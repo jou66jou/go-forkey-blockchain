@@ -10,16 +10,16 @@ import (
 	"github.com/jou66jou/go-forky-blockchain/common"
 )
 
+var (
+	Peers  []Peer
+	MyPort string //本機port
+)
+
 // 節點通信格式
 type msg struct {
 	Event   int         `json:"event"`   // 事件
 	Content interface{} `json:"content"` // 內容
 }
-
-var (
-	Peers  []Peer
-	MyPort string //本機port
-)
 
 // 向指定位置發出websocket請求
 func ConnectionToAddr(addr string, isBrdcst bool) {
@@ -40,26 +40,11 @@ func ConnectionToAddr(addr string, isBrdcst bool) {
 		return
 	}
 
-	// 向本機加入新節點
+	// 加入節點
 	newPeer := AppendNewPeer(conn, addr)
 	go newPeer.Write()
 	go newPeer.Read()
 
-}
-
-// 發出新節點事件廣播
-func BroadcastAddr(tgt string) {
-	m := &msg{ADD_PEER, tgt}
-	b, err := json.Marshal(m)
-	if err != nil {
-		fmt.Println("BroadcastAddr json error : " + err.Error())
-		return
-	}
-
-	// 遍歷本機節點將訊息傳入channel
-	for _, p := range Peers {
-		p.send <- b
-	}
 }
 
 // 加入新節點
@@ -72,11 +57,31 @@ func AppendNewPeer(conn *websocket.Conn, target string) Peer {
 // 單一節點回應區塊鏈
 func RespBLOCKCHAIN(p *Peer) {
 
-	m := &msg{RESPONSE_BLOCKCHAIN, block.BCs}
+	m := msg{common.RESPONSE_BLOCKCHAIN, block.BCs}
 	b, err := json.Marshal(m)
 	if err != nil {
 		fmt.Println("BroadcastAddr json error : " + err.Error())
 		return
 	}
 	p.send <- b
+}
+
+// 發出新節點事件
+func BroadcastAddr(tgt string) {
+	m := msg{common.ADD_PEER, tgt}
+	broadcastAll(m)
+}
+
+// 廣播
+func broadcastAll(m msg) {
+	b, err := json.Marshal(m)
+	if err != nil {
+		fmt.Println("BroadcastAddr json error : " + err.Error())
+		return
+	}
+
+	// 遍歷本機節點將訊息傳入channel
+	for _, p := range Peers {
+		p.send <- b
+	}
 }
