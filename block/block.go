@@ -3,7 +3,10 @@ package block
 import (
 	"crypto/sha256"
 	"encoding/hex"
+	"fmt"
 	"time"
+
+	"github.com/jou66jou/go-forky-blockchain/common"
 )
 
 type Block struct {
@@ -54,15 +57,35 @@ func (block *Block) IsBlockValid() bool {
 }
 
 // 替換舊鏈
-func ReplaceChain(newBlocks []Block) {
-	if len(newBlocks) > len(BCs) {
-		BCs = newBlocks
+func ReplaceChain(newBlocks []Block) (event int, content interface{}) {
+	if len(newBlocks) == 0 {
+		fmt.Println("new blockchain len is 0")
+		return -1, ""
 	}
+
+	lastNewBlock := newBlocks[len(newBlocks)-1]
+	lastheldBlock := GetLatestBlock()
+	if lastNewBlock.Index > lastheldBlock.Index {
+		if lastNewBlock.IsBlockValid() {
+			BCs = append(BCs, lastNewBlock)
+			// 廣播新區塊
+			return common.RESPONSE_BLOCKCHAIN, lastNewBlock
+		} else if len(newBlocks) == 1 {
+			// 請求其他節點的鏈
+			return common.QUERY_ALL, ""
+		} else {
+			BCs = newBlocks
+			return -1, ""
+		}
+	}
+	fmt.Println("new blockchain len is not longger than loacl blockchain")
+	return -1, ""
+
 }
 
-//取得最後一塊block
+// 取得最後一塊block
 func GetLatestBlock() Block {
-	if len(BCs) == 0 { //若鏈上無區塊則產生初始block
+	if len(BCs) == 0 { // 若鏈上無區塊則產生初始block
 		t := time.Now()
 		genesisBlock := Block{0, t.String(), "", "", 0}
 		genesisBlock.Hash = genesisBlock.CalculateHash()
