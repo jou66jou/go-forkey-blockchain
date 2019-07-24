@@ -4,17 +4,20 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"fmt"
+	"strconv"
 	"time"
 
 	"github.com/jou66jou/go-forky-blockchain/common"
 )
 
 type Block struct {
-	Index     int
-	Timestamp string
-	Hash      string
-	PrevHash  string
-	Wallet    int
+	Index      int    `json:"index"`
+	Timestamp  string `json:"timesp"`
+	Hash       string `json:"hash"`
+	PrevHash   string `json:"prehash"`
+	Wallet     int    `json:"wallet"`
+	Difficulty int    `json:"difficulty"`
+	Nonce      int    `json:"nonce"`
 }
 
 var (
@@ -33,9 +36,20 @@ func (block *Block) GenerateBlock(Wallet int) (Block, error) {
 	return newBlock, nil
 }
 
+func (block *Block) findBlock() string {
+	block.Nonce = 0
+	for {
+		h := block.CalculateHash()
+		checkHead := h[:block.Difficulty/4+1]
+		for i := 0; i <= block.Difficulty/32; i++ {
+
+		}
+	}
+}
+
 // 產生一個block的SHA256
 func (block *Block) CalculateHash() string {
-	record := string(block.Index) + block.Timestamp + string(block.Wallet) + block.PrevHash
+	record := string(block.Index) + block.Timestamp + string(block.Wallet) + block.PrevHash + string(block.Nonce)
 	h := sha256.New()
 	h.Write([]byte(record))
 	hashed := h.Sum(nil)
@@ -86,13 +100,28 @@ func BlockChainValid(newBlocks []Block) (event int, content interface{}) {
 
 }
 
+func hashMatchesDifficulty(h string, diff int) bool {
+
+}
+
 // 取得最後一塊block
 func GetLatestBlock() Block {
 	if len(BCs) == 0 { // 若鏈上無區塊則產生初始block
 		t := time.Now()
-		genesisBlock := Block{0, t.String(), "", "", 0}
+		genesisBlock := new(Block)
+		genesisBlock.Timestamp = t.String()
 		genesisBlock.Hash = genesisBlock.CalculateHash()
-		BCs = append(BCs, genesisBlock)
+		BCs = append(BCs, *genesisBlock)
 	}
 	return BCs[len(BCs)-1]
+}
+
+func HexToBin(hex string) (string, error) {
+	ui, err := strconv.ParseUint(hex, 16, 64)
+	if err != nil {
+		return "", err
+	}
+
+	format := fmt.Sprintf("%%0%db", len(hex)*4)
+	return fmt.Sprintf(format, ui), nil
 }
