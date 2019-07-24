@@ -1,0 +1,8 @@
+github.com/goinggo/mapstructure v0.0.0-20140717182941-194205d9b4a9 h1:wqckanyE9qc/XnvnybC6SHOb8Nyd62QXAZOzA8twFig=
+github.com/goinggo/mapstructure v0.0.0-20140717182941-194205d9b4a9/go.mod h1:64ikIrMv84B+raz7akXOqbF7cK3/OQQ/6cClY10oy7A=
+github.com/gorilla/mux v1.7.3 h1:gnP5JzjVOuiZD07fKKToCAOjS0yOpj/qPETTXCCS6hw=
+github.com/gorilla/mux v1.7.3/go.mod h1:1lud6UwP+6orDFRuTfBEV8e9/aOM/c4fVVCaMa2zaAs=
+github.com/gorilla/websocket v1.4.0 h1:WDFjx/TMzVgy9VdMMQi2K2Emtwi2QcUQsztZ/zLaH/Q=
+github.com/gorilla/websocket v1.4.0/go.mod h1:E7qHFY5m1UJ88s3WnNqhKjPHQ0heANvMoAMk2YaljkQ=
+github.com/jou66jou/go-forky-blockchain v0.0.0-20190723063534-a3bbfbe7eec0 h1:RAl8DlwtxoyIIpaATSVSZ5KlJusrnKk+dNUZ2IyPD9k=
+github.com/jou66jou/go-forky-blockchain v0.0.0-20190723063534-a3bbfbe7eec0/go.mod h1:4RMRhKs+05EY+PniWu6dbfXkBNgNX8zT8d0P1yP9f70=
