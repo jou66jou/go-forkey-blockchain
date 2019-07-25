@@ -14,7 +14,7 @@ import (
 const BLOCK_GENERATION_INTERVAL = 10
 
 // 調整難度週期
-const DIFFICULTY_ADJUSTMENT_INTERVAL = 10
+const DIFFICULTY_ADJUSTMENT_INTERVAL = 2
 
 type Block struct {
 	Index      int    `json:"index"`
@@ -51,6 +51,8 @@ func (block *Block) findBlock() error {
 	var err error
 	block.Nonce = 0
 	if block.Difficulty < 1 {
+		h := block.CalculateHash() // 64個十六進位數字
+		block.Hash = h
 		return nil
 	}
 	for {
@@ -116,10 +118,10 @@ func (block *Block) IsBlockValid() bool {
 
 // 取得Difficulty
 func (b *Block) GetDifficulty() int {
-	if b.Index%DIFFICULTY_ADJUSTMENT_INTERVAL == 0 && b.Index != 0 && b.Difficulty > 1 {
+	if b.Index%DIFFICULTY_ADJUSTMENT_INTERVAL == 0 && b.Index != 0 {
 		return AdjustedDif()
 	}
-	return b.Difficulty
+	return BCs[len(BCs)-1].Difficulty
 }
 
 // 驗證鏈
