@@ -37,13 +37,16 @@ func (block *Block) GenerateBlock(Wallet int) (Block, error) {
 }
 
 func (block *Block) findBlock() string {
+	var checkHead string
 	block.Nonce = 0
 	for {
-		h := block.CalculateHash()
-		checkHead := h[:block.Difficulty/4+1]
-		for i := 0; i <= block.Difficulty/32; i++ {
-
+		h := block.CalculateHash() // 64個十六進位數字
+		endIndex := block.Difficulty/4 + 1
+		for i := 0; i < endIndex; i += 16 {
+			// 一次僅能處理64個二進位==16個十六進位數字
+			checkHead += h[i : i+(endIndex%16)+1]
 		}
+		block.Nonce += 1
 	}
 }
 
