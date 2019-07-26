@@ -23,7 +23,7 @@ type Block struct {
 	PrevHash   string `json:"prehash"`
 	Wallet     int    `json:"wallet"`
 	Difficulty int    `json:"difficulty"`
-	Nonce      int    `json:"nonce"`
+	Nonce      uint64 `json:"nonce"`
 }
 
 var (
@@ -55,11 +55,17 @@ func (block *Block) findBlock() error {
 		block.Hash = h
 		return nil
 	}
+	// 固定資料先轉為字串，計算hash時就不必一直重複轉換
+	record := strconv.Itoa(block.Index) + strconv.FormatInt(block.Timestamp, 10) + strconv.Itoa(block.Wallet) + block.PrevHash + strconv.Itoa(block.Difficulty)
 	for {
 		var checkHead, binStr string
-		h := block.CalculateHash() // 64個十六進位數字
+
+		s := record + strconv.FormatUint(block.Nonce, 10) //基礎字串＋變動數字
+		h := GetHash(s)                                   // 64個十六進位數字
 
 		// 十六轉二進制一次僅能處理16個十六進位=>64個二進位
+		// 從hash字串第一位開始，提取 {Difficulty/4 無條件進位} 的長度出來
+		// 例如Difficulty = 6，則從
 		i := 0
 		endIndex := block.Difficulty / 4
 		if block.Difficulty%4 != 0 {
@@ -85,7 +91,7 @@ func (block *Block) findBlock() error {
 			i += 16
 		}
 
-		if hasMatchesDif(block.Difficulty, binStr) {
+		if hasMatchesDif(block.Difficulty, binStr) { // 確認前導零個數
 			block.Hash = h
 			return nil
 		}
@@ -95,11 +101,9 @@ func (block *Block) findBlock() error {
 
 // 產生一個block的SHA256
 func (block *Block) CalculateHash() string {
-	record := string(block.Index) + string(block.Timestamp) + string(block.Wallet) + block.PrevHash + string(block.Nonce) + string(block.Difficulty)
-	h := sha256.New()
-	h.Write([]byte(record))
-	hashed := h.Sum(nil)
-	return hex.EncodeToString(hashed)
+	var record string
+	record += strconv.Itoa(block.Index) + strconv.FormatInt(block.Timestamp, 10) + strconv.Itoa(block.Wallet) + block.PrevHash + strconv.Itoa(block.Difficulty) + strconv.FormatUint(block.Nonce, 10)
+	return GetHash(record)
 }
 
 // 驗證block
@@ -166,6 +170,14 @@ func GetLatestBlock() Block {
 		BCs = append(BCs, *genesisBlock)
 	}
 	return BCs[len(BCs)-1]
+}
+
+// Hash256
+func GetHash(s string) string {
+	d := sha256.New()
+	d.Write([]byte(s))
+	hashed := d.Sum(nil)
+	return hex.EncodeToString(hashed)
 }
 
 // 調整Difficulty
