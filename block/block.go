@@ -120,6 +120,12 @@ func (block *Block) IsBlockValid() bool {
 	return true
 }
 
+// 時間戳記驗證
+func (b *Block) IsTimeVaild() bool {
+	lastBlock := GetLatestBlock()
+	return b.Timestamp > (lastBlock.Timestamp-60) && b.Timestamp < (lastBlock.Timestamp+60)
+}
+
 // 取得Difficulty
 func (b *Block) GetDifficulty() int {
 	if b.Index%DIFFICULTY_ADJUSTMENT_INTERVAL == 0 && b.Index != 0 {
@@ -156,6 +162,11 @@ func BlockChainValid(newBlocks []Block) (event int, content interface{}) {
 	fmt.Println("new blockchain len is not longger than loacl blockchain")
 	return -1, ""
 
+}
+
+func GetAccumulateDif(c *[]Block) int {
+
+	return
 }
 
 // 取得最後一塊block
