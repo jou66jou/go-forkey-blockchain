@@ -18,7 +18,7 @@ func main() {
 	initFlag()
 	fmt.Println(port)
 	p2p.MyPort = port
-	if ("127.0.0.1:" + port) != seed {
+	if ("127.0.0.1:" + port) != seed { // 連上p2p節點
 		p2p.ConnectionToAddr(seed, false)
 
 	}
