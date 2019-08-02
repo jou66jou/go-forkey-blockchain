@@ -117,6 +117,9 @@ func (block *Block) IsBlockValid() bool {
 	if block.CalculateHash() != block.Hash {
 		return false
 	}
+	if !block.IsBlockValid() {
+		return false
+	}
 	return true
 }
 
@@ -135,13 +138,13 @@ func (b *Block) GetDifficulty() int {
 }
 
 // 驗證鏈
-func BlockChainValid(newBlocks []Block) (event int, content interface{}) {
-	if len(newBlocks) == 0 {
+func BlockChainValid(c *[]Block) (event int, content interface{}) {
+	if len(*c) == 0 {
 		fmt.Println("new blockchain len is 0")
 		return -1, ""
 	}
 
-	lastNewBlock := newBlocks[len(newBlocks)-1]
+	lastNewBlock := (*c)[len(*c)-1]
 	lastheldBlock := GetLatestBlock()
 	if lastNewBlock.Index > lastheldBlock.Index {
 		if lastNewBlock.IsBlockValid() {
@@ -149,14 +152,21 @@ func BlockChainValid(newBlocks []Block) (event int, content interface{}) {
 			// 廣播新區塊
 			fmt.Println("broadcast new block to other peer")
 			return common.RESPONSE_BLOCKCHAIN, []Block{lastNewBlock}
-		} else if len(newBlocks) == 1 {
+		} else if len(*c) == 1 {
 			// 請求其他節點的鏈
 			fmt.Println("query chain form other peer")
 			return common.QUERY_ALL, ""
 		} else {
-			fmt.Println("replace now chain")
-			BCs = newBlocks
-			return -1, ""
+			// 計算Difficulty
+			if GetAccumulateDif(c) > GetAccumulateDif(&BCs) {
+				fmt.Println("replace now chain")
+				BCs = *c
+				return -1, ""
+			} else {
+				fmt.Println("replace chain fail")
+				return -1, ""
+			}
+
 		}
 	}
 	fmt.Println("new blockchain len is not longger than loacl blockchain")
@@ -164,9 +174,13 @@ func BlockChainValid(newBlocks []Block) (event int, content interface{}) {
 
 }
 
+// 統計鏈的difficulty
 func GetAccumulateDif(c *[]Block) int {
-
-	return
+	var countDiff = 0
+	for _, b := range *c {
+		countDiff += b.Difficulty
+	}
+	return countDiff
 }
 
 // 取得最後一塊block
