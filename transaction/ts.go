@@ -19,15 +19,16 @@ type TxOut struct {
 }
 
 type Transaction struct {
-	Id     string
+	Id     string	// sha256
 	TxIns  []TxIn
 	TxOuts []TxOut
 }
 
+// 計算Ts包內容的sha256
 func (ts *Transaction) GetId() {
-
+	txInContent := 
 	for _, in := range ts.TxIns {
-
+		in.
 	}
 }
 
@@ -35,21 +36,6 @@ func (ts *Transaction) ValiDate(UnTxOuts []UspentTxOut) {
 
 }
 
-func ValiDateBlockTss(tss []Transaction, UnTxOuts []UspentTxOut, bIndex int) {
-
-}
-
-func HasDuplicates(txIns []TxIn) {
-
-}
-
-func ValiDateCoinBaseTx(ts Transaction, bIndex int) {
-
-}
-
-func (tIn *TxIn) ValiDateTxIn(ts Transaction, UnTxOuts []UspentTxOut) {
-
-}
 
 func (tIn *TxIn) GetTxInAmount(UnTxOuts []UspentTxOut) {
 
@@ -63,6 +49,11 @@ func getCoinbaseTs(addr string, bIndex int) {
 
 }
 
+// 交易簽名
 func signTxIn(ts Transaction, txInIndex int, privateKey string, UnTxOuts []UspentTxOut) {
 
+}
+
+func (ts *Transaction) GetTxInsContent() *string{
+	
 }
