@@ -7,3 +7,5 @@ https://medium.com/@lhartikk/a-blockchain-in-200-lines-of-code-963cc1cc0e54
 參考：https://github.com/lhartikk/naivecoin/tree/chapter1
 
 * 完成工作量證明
+
+* 建構交易Transaction中
